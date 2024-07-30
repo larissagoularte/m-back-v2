@@ -1,11 +1,18 @@
-const { appPassword } = require('../config/config');
+const jwt = require('jsonwebtoken');
+const { jwtSecret } = require('../config/config');
+
 
 module.exports = (req, res, next) => {
-    const password = req.headers['x-app-password'];
+    const token = req.headers['authorization'];
 
-    if (!password || password !== appPassword) {
+    if (!token) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    next();
-}
+    jwt.verify(token, jwtSecret, (err) => {
+        if (err) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+        next();
+    });
+};
