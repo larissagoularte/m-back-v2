@@ -27,7 +27,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: mongoUrl }),
-    cookie: { secure: false, name: 'session-id' }
+    cookie: { secure: true, name: 'session-id' }
 }));
 
 app.use(passport.initialize());
