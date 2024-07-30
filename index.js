@@ -7,13 +7,14 @@ const cors = require('cors');
 const passport = require('./config/passport'); 
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 const listingRouter = require('./routes/listingRoutes');
 const authRouter = require('./routes/authRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const secret = process.env.SECRET_KEY;
+const mongoUrl = process.env.DATABASE;
 
 const connectDB = require('./config/db');
 connectDB();
@@ -25,6 +26,7 @@ app.use(session({
     secret: 'secret',
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: mongoUrl }),
     cookie: { secure: false, name: 'session-id' }
 }));
 
