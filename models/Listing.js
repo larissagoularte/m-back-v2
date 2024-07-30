@@ -36,7 +36,7 @@ const listingSchema = new Schema({
             enum: ['available', 'unavailable'],
             required: true
         },
-        images: [
+        media: [
             {
                 type: String
             }

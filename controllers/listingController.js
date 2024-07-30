@@ -1,5 +1,6 @@
 const Listing = require('../models/Listing');
 const { appPassword } = require('../config/config');
+const { uploadToR2 } = require('../middlewares/uploadMiddleware');
 
 exports.getAllListings = async (req, res) => {
     try {
@@ -57,8 +58,17 @@ exports.addListing = async (req, res) => {
     }
 
     if (req.files && Array.isArray(req.files)) {
-        listingData.basicInfo.images = req.files.map(file => file.path);
-      }
+        try {
+            const fileUrls = [];
+            for (const file of req.files) {
+                const fileUrl = await uploadToR2(file);
+                fileUrls.push(fileUrl);
+            }
+            listingData.basicInfo.media = fileUrls;
+        } catch (error) {
+            return res.status(500).json({ message: 'Error uploading files to R2', error: error.message });
+        }
+    }
 
     const listing = new Listing(listingData);
     try {
