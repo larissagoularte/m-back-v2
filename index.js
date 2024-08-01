@@ -20,7 +20,7 @@ const connectDB = require('./config/db');
 connectDB();
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://m-front-v2.pages.dev/',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
@@ -34,7 +34,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: mongoUrl }),
-    cookie: { secure: false }
+    cookie: { secure: true }
 }));
 
 app.use(passport.initialize());
