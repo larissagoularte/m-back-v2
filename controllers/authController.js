@@ -1,29 +1,29 @@
 const passport = require('passport');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-exports.login = (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
-        if (err) {
-            return next(err);
-        }
+exports.register = async (req, res) => {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ username, password: hashedPassword });
+    await user.save();
+    res.status(201).send('User registered');
+}
 
-        if (!user) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
-
-        req.logIn(user, (err) => {
-            if (err) {
-                return next(err);
-            }
-            return res.json({ message: 'Login successful' });
-        });
-    })(req, res, next);
+exports.login = async (req, res) => {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (user && await bcrypt.compare(password, user.password)) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      res.cookie('token', token, { httpOnly: true, secure: true }); 
+      res.status(200).send('Logged in');
+    } else {
+      res.status(401).send('Invalid credentials');
+    }
 };
 
 exports.logout = (req, res, next) => {
-    req.logout((err) => {
-        if (err) {
-            return next(err);
-        }
-        res.json({ message: 'Logout successful' });
-    });
+    res.clearCookie('token');
+    res.status(200).send('Logged out');
 };

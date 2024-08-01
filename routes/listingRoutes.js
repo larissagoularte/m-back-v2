@@ -1,21 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const listingController = require('../controllers/listingController');
-const passport = require('passport');
+const passport = require('../config/passport');
 const { upload } = require('../middlewares/uploadMiddleware');
+const authenticate = require('../middlewares/authMiddleware');
 
-const ensureAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.status(401).json({ message: 'Unauthorized' });
-};
-
-
-router.get('/', ensureAuthenticated, listingController.getAllListings);
+router.get('/', authenticate, listingController.getAllListings);
 router.get('/:id', listingController.getListingById);
-router.post('/', ensureAuthenticated, upload.array('media', 20), listingController.addListing);
-router.put('/:id', ensureAuthenticated, listingController.updateListing);
-router.delete('/:id', ensureAuthenticated, listingController.deleteListing);
+router.post('/', authenticate, upload.array('media', 20), listingController.addListing);
+router.put('/:id', authenticate, listingController.updateListing);
+router.delete('/:id', authenticate, listingController.deleteListing);
 
 module.exports = router;

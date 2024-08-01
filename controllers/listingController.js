@@ -1,5 +1,4 @@
 const Listing = require('../models/Listing');
-const { appPassword } = require('../config/config');
 const { uploadToR2 } = require('../middlewares/uploadMiddleware');
 
 exports.getAllListings = async (req, res) => {
@@ -11,23 +10,33 @@ exports.getAllListings = async (req, res) => {
     }
 };
 
-exports.getListingById = async (req, res) => {
+exports.getListingById = async (req, res, next) => {
     try {
-        const listing = await Listing.findById(req.params.id);
-        if (!listing) return res.status(404).json({ message: 'Listing not found.' });
-
-        if (listing.basicInfo.status === 'unavailable') {
-            const password = req.headers['x-app-password'];
-            if (!password || password !== appPassword) {
-                return res.status(401).json({ message: 'Unauthorized - Listing Unavailable'});
-            }
+      const listing = await Listing.findById(req.params.id);
+      if (!listing) {
+        return res.status(404).json({ message: 'Listing not found.' });
+      }
+  
+      // Check the status of the listing
+      if (listing.status === 'available') {
+        // If available, return the listing without authentication
+        return res.json(listing);
+      }
+  
+      // If unavailable, use Passport to authenticate the user
+      passport.authenticate('jwt', { session: false }, (err, user, info) => {
+        if (err || !user) {
+          return res.status(401).json({ message: 'Unauthorized access.' });
         }
-
+  
+        // If authenticated, return the listing
         res.json(listing);
+      })(req, res, next);
+  
     } catch (err) {
-        res.status(500).json({ message: err.message });
+      res.status(500).json({ message: err.message });
     }
-};
+  };
 
 exports.addListing = async (req, res) => {
     let listingData = {

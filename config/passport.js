@@ -1,27 +1,25 @@
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const { appPassword } = require('./config');
+const { Strategy, ExtractJwt } = require('passport-jwt');
+require('dotenv').config();
+const User = require('../models/User');
 
-passport.use(new LocalStrategy(
-    { usernameField: 'password', passwordField: 'password', session: true },
-    (username, password, done) => {
-        if (password !== appPassword) {
-            return done(null, false, { message: 'Incorrect password.' });
+const jwtOptions = {
+    jwtFromRequest: (req) => {
+        return req.cookies.token;
+      },
+      secretOrKey: process.env.JWT_SECRET
+};
+
+passport.use(new Strategy(jwtOptions, (payload, done) => {
+    User.findById(payload.id)
+      .then(user => {
+        if (user) {
+          return done(null, user);
+        } else {
+          return done(null, false);
         }
-        return done(null, { username: 'admin' }); 
-    }
-));
-
-passport.serializeUser((user, done) => {
-    done(null, user.username);
-});
-
-passport.deserializeUser((username, done) => {
-    if (username === 'admin') {
-        done(null, { username: 'admin' });
-    } else {
-        done(new Error('User not found'));
-    }
-});
+      })
+      .catch(err => done(err, false));
+}));
 
 module.exports = passport;
