@@ -19,6 +19,13 @@ const mongoUrl = process.env.DATABASE;
 const connectDB = require('./config/db');
 connectDB();
 
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
 app.use(bodyParser.json());
 app.use(cookieParser());
 
