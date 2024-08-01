@@ -20,7 +20,7 @@ const connectDB = require('./config/db');
 connectDB();
 
 app.use(cors({
-    origin: 'https://m-front-v2.pages.dev/',
+    origin: 'https://m-front-v2.pages.dev',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
