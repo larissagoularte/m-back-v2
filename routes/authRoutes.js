@@ -9,6 +9,14 @@ const ensureAuthenticated = (req, res, next) => {
     res.status(401).json({ message: 'Unauthorized' });
 };
 
+router.get('/status', (req, res) => {
+    if (req.isAuthenticated()) {
+      res.json({ isAuthenticated: true });
+    } else {
+      res.json({ isAuthenticated: false });
+    }
+  });
+
 router.post('/login', authController.login);
 router.post('/logout', ensureAuthenticated,authController.logout);
 
