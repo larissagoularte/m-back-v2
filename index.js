@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const passport = require('./config/passport'); 
-const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
@@ -27,7 +26,6 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json());
-app.use(cookieParser());
 
 app.use(session({
     secret: 'secret',
